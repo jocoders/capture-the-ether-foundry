@@ -3,9 +3,21 @@ pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
-
 import {PredictTheBlockhash, ExploitContract} from "../src/PredictTheBlockhash.sol";
 
+/**
+ * @title PredictTheBlockhash Attack Test
+ * @notice Demonstrates exploitation of blockhash prediction
+ *
+ * @dev The vulnerability exists because:
+ * - Contract allows locking in a guess of the blockhash of the next block
+ * - If the guess is made at the right time, it can be accurately predicted
+ *
+ * Attack flow:
+ * 1. ExploitContract locks in the guess of the current blockhash
+ * 2. After the block number increases, calls settle
+ * 3. If the prediction is correct, funds are transferred
+ */
 contract PredictTheBlockhashTest is Test {
     PredictTheBlockhash public predictTheBlockhash;
     ExploitContract public exploitContract;

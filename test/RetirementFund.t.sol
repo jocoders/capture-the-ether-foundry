@@ -5,6 +5,18 @@ import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import {RetirementFund, ExploitContract} from "../src/RetirementFund.sol";
 
+/**
+ * @title RetirementFund Exploit Test
+ * @notice Demonstrates exploitation of penalty collection from premature fund withdrawal
+ *
+ * @dev The vulnerability exists because:
+ * - Contract allows collecting penalties if the balance decreases due to an external contract interaction
+ * - ExploitContract self-destructs and sends its balance to RetirementFund, triggering the penalty condition
+ *
+ * Attack flow:
+ * 1. ExploitContract is created and self-destructs, sending its balance to RetirementFund
+ * 2. Beneficiary calls collectPenalty() to withdraw the remaining funds
+ */
 contract RetirementFundTest is Test {
     RetirementFund public retirementFund;
     ExploitContract public exploitContract;

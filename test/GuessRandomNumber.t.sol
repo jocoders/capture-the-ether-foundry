@@ -5,6 +5,19 @@ import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import {GuessRandomNumber, ExploitContract} from "../src/GuessRandomNumber.sol";
 
+/**
+ * @title GuessRandomNumber Attack Test
+ * @notice Demonstrates exploitation of predictable RNG based on block properties at contract creation
+ *
+ * @dev The vulnerability exists because:
+ * - Contract uses blockhash and block.timestamp at creation time to set an immutable guess number
+ * - These values can be predicted if the call is made at the right block and time
+ *
+ * Attack flow:
+ * 1. ExploitContract predicts the number using the same blockhash and timestamp at its creation
+ * 2. Calls exploit() which internally calls guess() with the predicted number
+ * 3. If the prediction is correct, funds are transferred
+ */
 contract GuessRandomNumberTest is Test {
     GuessRandomNumber public guessRandomNumber;
     ExploitContract public exploitContract;

@@ -5,22 +5,31 @@ import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import {TokenWhale, ExploitContract} from "../src/TokenWhale.sol";
 
+/**
+ * @title TokenWhale Exploit Test
+ * @notice Demonstrates exploitation of token manipulation logic
+ *
+ * @dev The vulnerability exists because:
+ * - The contract allows manipulation of token balances through `approve()` and `transferFrom()`
+ * - `ExploitContract` can increase its token balance to meet the challenge completion condition
+ *
+ * Attack flow:
+ * 1. `ExploitContract` interacts with `TokenWhale`
+ * 2. Calls `approve()` and `transferFrom()` to manipulate token balances
+ * 3. Calls `transfer()` to transfer 1,000,000 tokens, achieving the challenge completion condition
+ */
 contract TokenWhaleTest is Test {
     TokenWhale public tokenWhale;
     ExploitContract public exploitContract;
-    // Feel free to use these random addresses
     address constant Alice = address(0x5E12E7);
     address constant Bob = address(0x5311E8);
     address constant Pete = address(0x5E41E9);
 
     function setUp() public {
-        // Deploy contracts
         tokenWhale = new TokenWhale(address(this));
         exploitContract = new ExploitContract(tokenWhale);
     }
 
-    // Use the instance tokenWhale and exploitContract
-    // Use vm.startPrank and vm.stopPrank to change between msg.sender
     function testExploit() public {
         tokenWhale.transfer(address(exploitContract), 100);
         tokenWhale.approve(address(exploitContract), 900);

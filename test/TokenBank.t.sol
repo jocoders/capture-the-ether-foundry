@@ -5,6 +5,19 @@ import {console} from "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
 import {TokenBankChallenge, TokenBankAttacker} from "../src/TokenBank.sol";
 
+/**
+ * @title TokenBank Exploit Test
+ * @notice Demonstrates exploitation of token withdrawal logic
+ *
+ * @dev The vulnerability exists because:
+ * - The contract does not properly handle token return logic in `withdraw()`
+ * - `TokenBankAttacker` can manipulate the token balance in the bank
+ *
+ * Attack flow:
+ * 1. `TokenBankAttacker` interacts with `TokenBankChallenge`
+ * 2. Calls `withdraw()` which triggers `tokenFallback()` in `TokenBankAttacker`
+ * 3. In `tokenFallback()`, `TokenBankAttacker` can call `withdraw()` again to extract more tokens than allowed
+ */
 interface IToken {
     function balanceOf(address owner) external view returns (uint256);
     function transfer(address to, uint256 value, bytes memory data) external returns (bool);

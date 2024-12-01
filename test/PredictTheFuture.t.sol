@@ -5,6 +5,17 @@ import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import {ExploitContract, PredictTheFuture} from "../src/PredictTheFuture.sol";
 
+/**
+ * @title PredictTheFuture Attack Test
+ * @notice Demonstrates exploitation of predictable RNG based on block properties
+ *
+ * - These values can be predicted if the call is made at the right block and time
+ *
+ * Attack flow:
+ * 1. ExploitContract predicts the number using the same blockhash and timestamp
+ * 2. Calls lockInGuess() which internally calls lockInGuess() with the predicted number
+ * 3. If the prediction is correct, funds are transferred
+ */
 contract PredictTheFutureTest is Test {
     PredictTheFuture public predictTheFuture;
     ExploitContract public exploitContract;
